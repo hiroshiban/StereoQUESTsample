@@ -31,7 +31,7 @@ function StereoQUESTsample(subjID, acq, displayfile, stimulusfile, gamma_table, 
 %
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2018-10-29 10:27:49 ban"
+% Last Update: "2018-10-29 14:07:33 ban"
 %
 %
 % [input variables]
@@ -465,6 +465,7 @@ if useStimulusFile
   sparam.initial_fixation_time=sparam.initial_fixation_time/1000;
   sparam.condition_duration=sparam.condition_duration/1000;
   sparam.BetweenDuration=sparam.BetweenDuration/1000;
+  sparam.stim_on_probe_duration=sparam.stim_on_probe_duration/1000;
   sparam.stim_on_duration=sparam.stim_on_duration/1000;
   sparam.feedback_duration=sparam.feedback_duration/1000;
 
@@ -546,12 +547,12 @@ else  % if useStimulusFile
   sparam.oversampling_ratio=8; % oversampling_ratio for fine scale RDS images, [val]
 
   %%% stimulus display durations etc in 'msec'
-  sparam.initial_fixation_time=500; % duration in msec for initial fixation, integer (msec)
-  sparam.condition_duration=500;    % duration in msec for each condition, integer (msec)
-  sparam.stim_on_probe_duration=[100,100]; % durations in msec for presenting a probe before the actual stimulus presentation (msec) [duration_of_red_fixation,duration_of_waiting]. if [0,0], the probe is ignored.
-  sparam.stim_on_duration=150;      % duration in msec for simulus ON period for each trial, integer (msec)
-  sparam.feedback_duration=500;     % duration in msec for correct/incorrect feedback, integer (msec)
-  sparam.BetweenDuration=500;       % duration in msec between trials, integer (msec)
+  sparam.initial_fixation_time=0.500; % duration in msec for initial fixation, integer (msec)
+  sparam.condition_duration=0.500;    % duration in msec for each condition, integer (msec)
+  sparam.stim_on_probe_duration=[0.100,0.100]; % durations in msec for presenting a probe before the actual stimulus presentation (msec) [duration_of_red_fixation,duration_of_waiting]. if [0,0], the probe is ignored.
+  sparam.stim_on_duration=0.150;      % duration in msec for simulus ON period for each trial, integer (msec)
+  sparam.feedback_duration=0.500;     % duration in msec for correct/incorrect feedback, integer (msec)
+  sparam.BetweenDuration=0.500;       % duration in msec between trials, integer (msec)
 
   sparam.stim_off_duration=sparam.condition_duration-sparam.stim_on_duration;
 
@@ -888,7 +889,7 @@ if strfind(upper(subjID),'DEBUG')
     orient_deg=design(ii,2);
 
     % generate slant height field with sinusoidal grating
-    if ~strcmp(sparam.mask_type,'xy')
+    if ~strcmpi(sparam.mask_type{ii},'xy')
       slant_field=sla_CreateCircularSlantField(sparam.fieldSize,theta_deg,orient_deg,sparam.aperture_deg,...
                                                sparam.fill_val,sparam.outer_val,sparam.pix_per_deg,sparam.oversampling_ratio);
     else
@@ -897,13 +898,13 @@ if strfind(upper(subjID),'DEBUG')
     slant_field=slant_field.*sparam.cm_per_pix;
 
     % put XY-mask on the slant_field
-    if strcmp(sparam.mask_type{ii},'xy')
+    if strcmpi(sparam.mask_type{ii},'xy')
       slant_field=slant_field.*smask(:,:,sparam.mask_orient_id(ii));
       slant_field(smask(:,:,sparam.mask_orient_id(ii))~=1)=sparam.outer_val;
     end
 
     % put Z-mask on the slant_field
-    if strcmp(sparam.mask_type{ii},'z')
+    if strcmpi(sparam.mask_type{ii},'z')
       maxH=mean(max_height(:,sparam.mask_orient_id(ii))); %maxH=min(max_height(:,sparam.mask_orient_id(ii)));
       minH=mean(min_height(:,sparam.mask_orient_id(ii))); %minH=max(min_height(:,sparam.mask_orient_id(ii)));
       slant_field(slant_field<minH | maxH<slant_field)=sparam.outer_val;
@@ -932,7 +933,7 @@ if strfind(upper(subjID),'DEBUG')
   for ii=1:1:size(design,1)
 
     % save generated figures as png
-    if ~strcmp(dparam.ExpMode,'redgreen') && ~strcmp(dparam.ExpMode,'redblue')
+    if ~strcmpi(dparam.ExpMode,'redgreen') && ~strcmpi(dparam.ExpMode,'redblue')
       M = [imgL{ii},sparam.bgcolor(3)*ones(size(imgL{ii},1),20),imgR{ii},sparam.bgcolor(3)*ones(size(imgL{ii},1),20),imgL{ii}];
       % im_h = imagesc(M,[0 255]);
       % axis off
@@ -951,7 +952,7 @@ if strfind(upper(subjID),'DEBUG')
 
     figure; hold on;
     imfig=imshow(M,[0,255]);
-    if ~strcmp(dparam.ExpMode,'redgreen') && ~strcmp(dparam.ExpMode,'redblue')
+    if ~strcmpi(dparam.ExpMode,'redgreen') && ~strcmpi(dparam.ExpMode,'redblue')
       fname=sprintf('oblique3D_cond%03d_theta%.2f_ori%.2f.png',ii,design(ii,1),design(ii,2));
     else
       fname=sprintf('oblique3D_red_green_cond%03d_theta%.2f_ori%.2f.png',ii,design(ii,1),design(ii,2));
@@ -1182,7 +1183,7 @@ while ~isempty(condition_ID_holder)
     tilt_deg(ii)=theta_deg+(-1).^ii*angle/2+jitter;
 
     % generate slant height field with sinusoidal grating
-    if ~strcmpi(sparam.mask_type,'xy')
+    if ~strcmpi(sparam.mask_type{stimID},'xy')
       slant_field=sla_CreateCircularSlantField(sparam.fieldSize,tilt_deg(ii),orient_deg,sparam.aperture_deg,...
                                                sparam.fill_val,sparam.outer_val,sparam.pix_per_deg,sparam.oversampling_ratio);
     else
@@ -1191,13 +1192,13 @@ while ~isempty(condition_ID_holder)
     slant_field=slant_field.*sparam.cm_per_pix;
 
     % put XY-mask on the slant_field
-    if strcmp(sparam.mask_type,'xy')
+    if strcmpi(sparam.mask_type{stimID},'xy')
       slant_field=slant_field.*smask(:,:,sparam.mask_orient_id(stimID));
       slant_field(smask(:,:,sparam.mask_orient_id(stimID))~=1)=sparam.outer_val;
     end
 
     % put Z-mask on the slant_field
-    if strcmp(sparam.mask_type,'z')
+    if strcmpi(sparam.mask_type{stimID},'z')
       maxH=mean(max_height(:,sparam.mask_orient_id(stimID))); %maxH=min(max_height(:,sparam.mask_orient_id(stimID)));
       minH=mean(min_height(:,sparam.mask_orient_id(stimID))); %minH=max(min_height(:,sparam.mask_orient_id(stimID)));
       zmask=zeros(size(slant_field));
@@ -1212,11 +1213,11 @@ while ~isempty(condition_ID_holder)
     % if masking_the_outer_region_flg is set, mask all the dots located in the outer region
     if ~isstructmember(sparam,'masking_the_outer_region_flg'), sparam.masking_the_outer_region_flg=0; end
     if sparam.masking_the_outer_region_flg
-      if strcmp(sparam.mask_type,'n')
+      if strcmpi(sparam.mask_type{stimID},'n')
         [imgL,imgR]=sla_RDSfastest_with_noise_with_mask_MEX(posL,posR,wdot,bdot,dotalpha,dotDens,sparam.noise_level,sparam.colors(3),smask(:,:,sparam.mask_orient_id(stimID)));
-      elseif strcmp(sparam.mask_type,'xy')
+      elseif strcmpi(sparam.mask_type{stimID},'xy')
         [imgL,imgR]=sla_RDSfastest_with_noise_with_mask_MEX(posL,posR,wdot,bdot,dotalpha,dotDens,sparam.noise_level,sparam.colors(3),smask(:,:,sparam.mask_orient_id(stimID)));
-      elseif strcmp(sparam.mask_type,'z')
+      elseif strcmpi(sparam.mask_type{stimID},'z')
         [imgL,imgR]=sla_RDSfastest_with_noise_with_mask_MEX(posL,posR,wdot,bdot,dotalpha,dotDens,sparam.noise_level,sparam.colors(3),zmask);
       end
     else
@@ -1405,7 +1406,7 @@ while ~isempty(condition_ID_holder)
   for nn=1:1:nScr
     Screen('SelectStereoDrawBuffer',winPtr,nn-1);
     Screen('DrawTexture',winPtr,background,[],CenterRect(bgRect,winRect)+yshift);
-    Screen('DrawTexture',winPtr,wait_fcross{nn},[],CenterRect(fixRect,winRect)+yshift);
+    Screen('DrawTexture',winPtr,fcross{nn},[],CenterRect(fixRect,winRect)+yshift);
   end
   Screen('DrawingFinished',winPtr);
   Screen('Flip',winPtr,[],[],[],1);

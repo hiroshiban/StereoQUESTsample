@@ -4,7 +4,7 @@
 % Oblique3D_QUEST.m
 %
 % Created    : "2018-09-26 18:57:59 ban"
-% Last Update: "2018-10-29 10:19:21 ban"
+% Last Update: "2018-10-29 14:00:45 ban"
 % ************************************************************
 
 % "sparam" means "stimulus generation parameters"
@@ -78,7 +78,7 @@ sparam.oversampling_ratio=8; % oversampling_ratio for fine scale RDS images, [va
 %%% stimulus display durations etc in 'msec'
 sparam.initial_fixation_time=500; % duration in msec for initial fixation, integer (msec)
 sparam.condition_duration=500;    % duration in msec for each condition, integer (msec)
-sparam.stim_on_probe_duration=[100,100]; % durations in msec for presenting a probe before the actual stimulus presentation (msec) [duration_of_red_fixation,duration_of_waiting]. if [0,0], the probe is ignored.
+sparam.stim_on_probe_duration=[100,500]; % durations in msec for presenting a probe before the actual stimulus presentation (msec) [duration_of_red_fixation,duration_of_waiting]. if [0,0], the probe is ignored.
 sparam.stim_on_duration=150;      % duration in msec for simulus ON period for each trial, integer (msec)
 sparam.feedback_duration=500;     % duration in msec for correct/incorrect feedback, integer (msec)
 sparam.BetweenDuration=500;       % duration in msec between trials, integer (msec)

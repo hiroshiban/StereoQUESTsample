@@ -4,7 +4,7 @@
 % SlantfMRI.m
 %
 % Created    : "2018-09-26 18:57:59 ban"
-% Last Update: "2018-10-14 16:28:51 ban"
+% Last Update: "2018-10-29 12:58:56 ban"
 % ************************************************************
 
 % "dparam" means "display-setting parameters"
@@ -14,7 +14,7 @@
 % "redblue", "bluered", "shutter", "topbottom", "bottomtop", "interleavedline", "interleavedcolumn"
 dparam.ExpMode='shutter';
 
-dparam.scrID=1; % screen ID, generally 0 for a single display setup, 1 for dual display setup
+dparam.scrID=0; % screen ID, generally 0 for a single display setup, 1 for dual display setup
 
 %%% a method to start stimulus presentation
 % 0:ENTER/SPACE, 1:Left-mouse button, 2:the first MR trigger pulse (CiNet),
