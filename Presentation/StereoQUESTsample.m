@@ -31,7 +31,7 @@ function StereoQUESTsample(subjID, acq, displayfile, stimulusfile, gamma_table, 
 %
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2018-10-26 10:30:37 ban"
+% Last Update: "2018-10-29 10:27:49 ban"
 %
 %
 % [input variables]
@@ -219,6 +219,7 @@ function StereoQUESTsample(subjID, acq, displayfile, stimulusfile, gamma_table, 
 % %%% stimulus display durations etc in 'msec'
 % sparam.initial_fixation_time=500; % duration in msec for initial fixation, integer (msec)
 % sparam.condition_duration=500;    % duration in msec for each condition, integer (msec)
+% sparam.stim_on_probe_duration=[100,100]; % durations in msec for presenting a probe before the actual stimulus presentation (msec) [duration_of_red_fixation,duration_of_waiting]. if [0,0], the probe is ignored.
 % sparam.stim_on_duration=150;      % duration in msec for simulus ON period for each trial, integer (msec)
 % sparam.feedback_duration=500;     % duration in msec for correct/incorrect feedback, integer (msec)
 % sparam.BetweenDuration=500;       % duration in msec between trials, integer (msec)
@@ -547,6 +548,7 @@ else  % if useStimulusFile
   %%% stimulus display durations etc in 'msec'
   sparam.initial_fixation_time=500; % duration in msec for initial fixation, integer (msec)
   sparam.condition_duration=500;    % duration in msec for each condition, integer (msec)
+  sparam.stim_on_probe_duration=[100,100]; % durations in msec for presenting a probe before the actual stimulus presentation (msec) [duration_of_red_fixation,duration_of_waiting]. if [0,0], the probe is ignored.
   sparam.stim_on_duration=150;      % duration in msec for simulus ON period for each trial, integer (msec)
   sparam.feedback_duration=500;     % duration in msec for correct/incorrect feedback, integer (msec)
   sparam.BetweenDuration=500;       % duration in msec between trials, integer (msec)
@@ -995,6 +997,10 @@ background=Screen('MakeTexture',winPtr,bgimg{1});
 fcross{1}=Screen('MakeTexture',winPtr,fix_L);
 fcross{2}=Screen('MakeTexture',winPtr,fix_R);
 
+[fix_L,fix_R]=CreateFixationImg(sparam.fixsize,[255,0,0],sparam.bgcolor,sparam.fixlinesize(2),sparam.fixlinesize(1),0,0);
+probe_fcross{1}=Screen('MakeTexture',winPtr,fix_L);
+probe_fcross{2}=Screen('MakeTexture',winPtr,fix_R);
+
 [fix_L,fix_R]=CreateFixationImg(sparam.fixsize,[32,32,32],sparam.bgcolor,sparam.fixlinesize(2),sparam.fixlinesize(1),0,0);
 wait_fcross{1}=Screen('MakeTexture',winPtr,fix_L);
 wait_fcross{2}=Screen('MakeTexture',winPtr,fix_R);
@@ -1245,6 +1251,38 @@ while ~isempty(condition_ID_holder)
     fprintf('ID:%02d, THETA:% 3.2f, ORIENTATION:% 3d, ANGLE:% 3.2f, TRIALS:%03d, TYPE:%02d\n',...
             stimID,theta_deg,orient_deg,tilt_deg(ii),currenttrial_counter(stimID),ii);
     if second_stim_flag==2, fprintf('\n'); end
+
+    %% display a probe (a red fixation) before presenting the stimulus
+    if second_stim_flag~=2
+      if sparam.stim_on_probe_duration(1)~=0
+        event=event.add_event('Probe','');
+        for nn=1:1:nScr
+          Screen('SelectStereoDrawBuffer',winPtr,nn-1);
+          Screen('DrawTexture',winPtr,background,[],CenterRect(bgRect,winRect)+yshift);
+          Screen('DrawTexture',winPtr,probe_fcross{nn},[],CenterRect(fixRect,winRect)+yshift);
+        end
+        Screen('DrawingFinished',winPtr);
+        Screen('Flip',winPtr,[],[],[],1);
+
+        % wait for stim_on_probe_duration(1)
+        tStimulation=tStimulation+sparam.stim_on_probe_duration(1);
+        while GetSecs()<tStimulation, [resps,event]=resps.check_responses(event); end
+      end
+
+      if sparam.stim_on_probe_duration(2)~=0
+        for nn=1:1:nScr
+          Screen('SelectStereoDrawBuffer',winPtr,nn-1);
+          Screen('DrawTexture',winPtr,background,[],CenterRect(bgRect,winRect)+yshift);
+          Screen('DrawTexture',winPtr,fcross{nn},[],CenterRect(fixRect,winRect)+yshift);
+        end
+        Screen('DrawingFinished',winPtr);
+        Screen('Flip',winPtr,[],[],[],1);
+
+        % wait for stim_on_probe_duration(2)
+        tStimulation=tStimulation+sparam.stim_on_probe_duration(2);
+        while GetSecs()<tStimulation, [resps,event]=resps.check_responses(event); end
+      end
+    end % if second_stim_flag~=2
 
     %% stimulus ON
     for nn=1:1:nScr

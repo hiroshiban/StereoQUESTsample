@@ -4,7 +4,7 @@
 % Oblique3D_QUEST.m
 %
 % Created    : "2018-09-26 18:57:59 ban"
-% Last Update: "2018-10-15 11:51:01 ban"
+% Last Update: "2018-10-29 10:19:21 ban"
 % ************************************************************
 
 % "sparam" means "stimulus generation parameters"
@@ -40,7 +40,7 @@ sparam.fieldSize=[12,12]; % target stimulus size in deg
 
 % for generating a mask, which is defined as a common filed of all the slants tilted by sparam.mask_theta_deg below.
 sparam.mask_theta_deg   = [-52.5, -37.5, -22.5, -7.5, 7.5, 22.5, 37.5, 52.5]; % for masking, slopes of the slant stimuli in deg, orientation: right-upper-left
-sparam.mask_orient_deg  = [0,45,90,135]; % for masking, tilted orientation of the slant in deg, from right horizontal meridian, CCW
+sparam.mask_orient_deg  = [0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5]; % for masking, tilted orientation of the slant in deg, from right horizontal meridian, CCW
 
 % [Important notes on angles/orientations of the slants]
 %
@@ -52,17 +52,17 @@ sparam.mask_orient_deg  = [0,45,90,135]; % for masking, tilted orientation of th
 % sparam.mask_orient_id : ID of the mask to be used, 1 = sparam.mask_orient_deg(1), 2 = sparam.mask_orient_deg(2), ...., a [1 x N (= #conditions)] matrix
 %
 %
-% * the number of required slants in this experiment are: 8 slants X 4 orientations = 32.
+% * the number of required slants in this experiment are: 8 slants X 8 orientations = 64.
 %
-% sparam.theta_deg    = repmat([ -52.5, -37.5, -22.5,  -7.5,   7.5,  22.5,  37.5,  52.5],[1,4]);
-% sparam.orient_deg   = [0.*ones(1,8),45.*ones(1,8),90.*ones(1,8),135.*ones(1,8)];
-% sparam.mask_type    = {repmat('xy',[1,32]};
-% sparam.mask_orient_id=[1.*ones(1,8),2.*ones(1,8),3.*ones(1,8),4.*ones(1,8)];
+% sparam.theta_deg    = repmat([ -52.5, -37.5, -22.5,  -7.5,   7.5,  22.5,  37.5,  52.5],[1,8]);
+% sparam.orient_deg   = [0.*ones(1,8),22.5.*ones(1,8),45.*ones(1,8),67.5.*ones(1,8),90.*ones(1,8),112.5.*ones(1,8),135.*ones(1,8),157.5.*ones(1,8)];
+% sparam.mask_type    = repmat({'xy'},[1,64]);
+% sparam.mask_orient_id=[1.*ones(1,8),2.*ones(1,8),3.*ones(1,8),4.*ones(1,8),5.*ones(1,8),6.*ones(1,8),7.*ones(1,8),8.*ones(1,8)];
 
-sparam.theta_deg    = repmat([ -52.5, -37.5, -22.5,  -7.5,   7.5,  22.5,  37.5,  52.5],[1,4]);
-sparam.orient_deg   = [0.*ones(1,8),45.*ones(1,8),90.*ones(1,8),135.*ones(1,8)];
-sparam.mask_type    = repmat({'xy'},[1,32]);
-sparam.mask_orient_id=[1.*ones(1,8),2.*ones(1,8),3.*ones(1,8),4.*ones(1,8)];
+sparam.theta_deg    = repmat([ -52.5, -37.5, -22.5,  -7.5,   7.5,  22.5,  37.5,  52.5],[1,8]);
+sparam.orient_deg   = [0.*ones(1,8),22.5.*ones(1,8),45.*ones(1,8),67.5.*ones(1,8),90.*ones(1,8),112.5.*ones(1,8),135.*ones(1,8),157.5.*ones(1,8)];
+sparam.mask_type    = repmat({'xy'},[1,64]);
+sparam.mask_orient_id=[1.*ones(1,8),2.*ones(1,8),3.*ones(1,8),4.*ones(1,8),5.*ones(1,8),6.*ones(1,8),7.*ones(1,8),8.*ones(1,8)];
 
 sparam.aperture_deg = 10;   % size of circular aperture in deg
 sparam.fill_val     = 0;    % value to fill the 'hole' of the circular aperture
@@ -78,6 +78,7 @@ sparam.oversampling_ratio=8; % oversampling_ratio for fine scale RDS images, [va
 %%% stimulus display durations etc in 'msec'
 sparam.initial_fixation_time=500; % duration in msec for initial fixation, integer (msec)
 sparam.condition_duration=500;    % duration in msec for each condition, integer (msec)
+sparam.stim_on_probe_duration=[100,100]; % durations in msec for presenting a probe before the actual stimulus presentation (msec) [duration_of_red_fixation,duration_of_waiting]. if [0,0], the probe is ignored.
 sparam.stim_on_duration=150;      % duration in msec for simulus ON period for each trial, integer (msec)
 sparam.feedback_duration=500;     % duration in msec for correct/incorrect feedback, integer (msec)
 sparam.BetweenDuration=500;       % duration in msec between trials, integer (msec)

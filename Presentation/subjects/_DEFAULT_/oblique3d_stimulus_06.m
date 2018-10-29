@@ -4,7 +4,7 @@
 % Oblique3D_QUEST.m
 %
 % Created    : "2018-09-26 18:57:59 ban"
-% Last Update: "2018-10-29 10:10:01 ban"
+% Last Update: "2018-10-29 10:11:16 ban"
 % ************************************************************
 
 % "sparam" means "stimulus generation parameters"
@@ -14,9 +14,9 @@ run(fullfile(fileparts(mfilename('fullpath')),'oblique3d_stimulus_common'));
 
 %%% overwrite some parameters specific to this configuration.
 
-param.mask_orient_deg  = 45; % for masking, tilted orientation of the slant in deg, from right horizontal meridian, CCW
+param.mask_orient_deg  = 112.5; % for masking, tilted orientation of the slant in deg, from right horizontal meridian, CCW
 
-sparam.theta_deg    = sparam.theta_deg(17:1:24);
-sparam.orient_deg   = sparam.orient_deg(17:1:24);
-sparam.mask_type    = sparam.mask_type(17:1:24);
+sparam.theta_deg    = sparam.theta_deg(41:1:48);
+sparam.orient_deg   = sparam.orient_deg(41:1:48);
+sparam.mask_type    = sparam.mask_type(41:1:48);
 sparam.mask_orient_id=ones(1,8); % since sparam.mask_orient_deg is overwritten, we have to re-set the mask_orient_id.
