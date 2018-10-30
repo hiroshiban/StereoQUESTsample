@@ -31,7 +31,7 @@ function StereoQUESTsample(subjID, acq, displayfile, stimulusfile, gamma_table, 
 %
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2018-10-29 14:07:33 ban"
+% Last Update: "2018-10-29 18:41:15 ban"
 %
 %
 % [input variables]
@@ -595,7 +595,7 @@ dparam.RunScript=mfilename();
 sparam.RunScript=mfilename();
 
 % set the number of conditions
-sparam.numConds=numel(sparam.theta_deg)*numel(sparam.orient_deg);
+sparam.numConds=numel(sparam.theta_deg);
 
 % displaying the Presentation Parameters
 disp('The Presentation Parameters are as below.');
