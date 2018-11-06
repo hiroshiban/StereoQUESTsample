@@ -31,7 +31,7 @@ function StereoQUESTsample(subjID, acq, displayfile, stimulusfile, gamma_table, 
 %
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2018-10-29 18:41:15 ban"
+% Last Update: "2018-11-06 13:02:53 ban"
 %
 %
 % [input variables]
@@ -793,12 +793,6 @@ sparam.cm_per_pix=1/sparam.pix_per_cm;
 % pixles per degree
 sparam.pix_per_deg=round( 1/( 180*atan(sparam.cm_per_pix/sparam.vdist)/pi ) );
 
-% sound sources for feedback correct/incorrect
-if sparam.give_feedback
-  beep_correct=sin(2*pi*0.2*(0:900));
-  beep_incorrect=sin(2*pi*0.012*(0:900));
-end
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Initializing height fields & image shifts by binocular disparities
@@ -1333,34 +1327,27 @@ while ~isempty(condition_ID_holder)
   % get observer's response
 
   % the line below are just for debugging of response acquisitions and plotting results
-  %respFlag=1; response=mod(randi(2,[1,1]),2);
+  %respFlag=mod(randi(2,[1,1]),2);
 
-  response=0;
   respFlag=0;
   while ~respFlag
     [x,y,button]=GetMouse(); %#ok
     [resps,event,keyCode]=resps.check_responses(event);
-
-    % correct response
     if (keyCode(dparam.Key1) && torder(1)==1) || (keyCode(dparam.Key2) && torder(2)==1) || ...
-       (button(1) && torder(1)==1) || (button(3) && torder(2)==1)
-      response=1;
+       (button(1) && torder(1)==1) || (button(3) && torder(2)==1) % correct response
+      event=event.add_event('Response','The first is more slanted.');
       respFlag=1;
-    % incorrect
     elseif (keyCode(dparam.Key1) && torder(2)==1) || (keyCode(dparam.Key2) && torder(1)==1) || ...
-           (button(1) && torder(2)==1) || (button(3) && torder(1)==1)
-      response=0;
-      respFlag=1;
-    else % press the other key or mistake
-      respFlag=0;
-      response=0;
+           (button(1) && torder(2)==1) || (button(3) && torder(1)==1) % incorrect response
+      event=event.add_event('Response','The second is more slanted.');
+      respFlag=-1;
     end
   end
 
-  estimation_matrix{stimID}(currenttrial_counter(stimID),2)=response;
+  estimation_matrix{stimID}(currenttrial_counter(stimID),2)=double(respFlag>0);
 
   % update stimulus intensity in the QUEST structure
-  quest_data{stimID}=QuestUpdate(quest_data{stimID},log10(angle/sparam.maxValue),response);
+  quest_data{stimID}=QuestUpdate(quest_data{stimID},log10(angle/sparam.maxValue),double(respFlag>0));
   estimation_matrix{stimID}(currenttrial_counter(stimID),3)=sparam.maxValue*10^QuestMean(quest_data{stimID});
   estimation_matrix{stimID}(currenttrial_counter(stimID),4)=sparam.maxValue*10^QuestSd(quest_data{stimID});
 
@@ -1368,31 +1355,23 @@ while ~isempty(condition_ID_holder)
   if sparam.give_feedback
     tFeedback=GetSecs();
 
-    % display feedback
+    if respFlag==1 % correct response
+      event=event.add_event('Feedback','correct');
+    else % if respFlag==-1 % incorrect response
+      event=event.add_event('Feedback','incorrect');
+    end
     for nn=1:1:nScr
       Screen('SelectStereoDrawBuffer',winPtr,nn-1);
       Screen('DrawTexture',winPtr,background,[],CenterRect(bgRect,winRect)+yshift);
-      if response
-        event=event.add_event('Feedback','correct');
+      if respFlag==1
         Screen('DrawTexture',winPtr,correct_fcross{nn},[],CenterRect(fixRect,winRect)+yshift);
       else
-        event=event.add_event('Feedback','incorrect');
         Screen('DrawTexture',winPtr,incorrect_fcross{nn},[],CenterRect(fixRect,winRect)+yshift);
       end
     end
     Screen('DrawingFinished',winPtr);
     Screen('Flip',winPtr,[],[],[],1);
-
-    % sound feedback
-    try % if this script can write data to sound devide
-      if response
-        Snd('Play',beep_correct,22000);
-      else
-        Snd('Play',beep_incorrect,22000);
-      end
-    catch %#ok %lasterror
-      % do nothing
-    end
+    PlaySound(respFlag>0);
 
     % wait for feedback_duration
     tFeedback=tFeedback+sparam.feedback_duration;
@@ -1432,6 +1411,7 @@ experimentDuration=GetSecs()-the_experiment_start;
 event=event.add_event('End',[]);
 disp(' ');
 disp(['Experiment Duration was: ', num2str(experimentDuration)]);
+disp(' ');
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1456,6 +1436,7 @@ for ii=1:1:size(design,1)
           design(ii,1),design(ii,2),angle_thresholds(ii),angle_SDs(ii));
 end
 disp('****************************************');
+disp(' ');
 
 % saving the results
 fprintf('saving data...');
