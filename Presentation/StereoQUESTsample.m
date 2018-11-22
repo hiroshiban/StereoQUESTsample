@@ -31,7 +31,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2018-11-12 13:37:23 ban"
+% Last Update: "2018-11-22 20:15:31 ban"
 %
 %
 % [input variables]
@@ -131,6 +131,9 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %
 % % shift the screen center position along y-axis (to prevent the occlusion of the stimuli due to the coil)
 % dparam.yshift=30;
+%
+% % whther skipping the PTB's vertical-sync signal test. if 1, the sync test is skipped
+% dparam.skip_sync_test=0;
 %
 %
 % [About stimulusfile]
@@ -304,7 +307,20 @@ if nargin<7 || isempty(force_proceed_flag), force_proceed_flag=0; end
 if acq<1, error('Acquistion number must be integer and greater than zero'); end
 
 % check the subject directory
-if ~exist(fullfile(pwd,'subjects',subjID),'dir'), error('can not find subj directory. check input variable.'); end
+if ~exist(fullfile(pwd,'subjects',subjID),'dir'), error('can not find subj directory. check the input variable.'); end
+
+rootDir=fileparts(mfilename('fullpath'));
+
+% check the display/stimulus files
+if ~isempty(displayfile)
+  if ~strcmpi(displayfile(end-1:end),'.m'), displayfile=[displayfile,'.m']; end
+  if ~exist(fullfile(rootDir,'subjects',subjID,displayfile),'file'), error('displayfile not found. check the input variable.'); end
+end
+
+if ~isempty(stimulusfile)
+  if ~strcmpi(stimulusfile(end-1:end),'.m'), stimulusfile=[stimulusfile,'.m']; end
+  if ~exist(fullfile(rootDir,'subjects',subjID,stimulusfile),'file'), error('stimulusfile not found. check the input variable.'); end
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -312,7 +328,6 @@ if ~exist(fullfile(pwd,'subjects',subjID),'dir'), error('can not find subj direc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % add paths to the subfunctions
-rootDir=fileparts(mfilename('fullpath'));
 addpath(fullfile(rootDir,'..','Common'));
 addpath(fullfile(rootDir,'..','gamma_table'));
 addpath(fullfile(rootDir,'..','Generation'));
@@ -370,19 +385,6 @@ end
 %%%% Validate dparam (displayfile) and sparam (stimulusfile) structures
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% check the display/stimulus files
-if ~isempty(displayfile)
-  if ~strcmpi(displayfile(end-1:end),'.m'), displayfile=[displayfile,'.m']; end
-  [is_exist,message]=IsExistYouWant(fullfile(rootDir,'subjects',subjID,displayfile),'file');
-  if ~is_exist, error(message); end
-end
-
-if ~isempty(stimulusfile)
-  if ~strcmpi(stimulusfile(end-1:end),'.m'), stimulusfile=[stimulusfile,'.m']; end
-  [is_exist,message]=IsExistYouWant(fullfile(rootDir,'subjects',subjID,stimulusfile),'file');
-  if ~is_exist, error(message); end
-end
-
 % organize dparam
 dparam=struct(); % initialize
 if ~isempty(displayfile), run(fullfile(rootDir,'subjects',subjID,displayfile)); end % load specific dparam parameters configured for each of the participants
@@ -395,7 +397,8 @@ dparam=ValidateStructureFields(dparam,... % validate fields and set the default 
          'Key2',39,...
          'fullscr',false,...
          'ScrHeight',1200,...
-         'ScrWidth',1920);
+         'ScrWidth',1920,...
+         'skip_sync_test',0);
 
 % organize sparam
 sparam=struct(); % initialize
@@ -447,12 +450,12 @@ sparam=ValidateStructureFields(sparam,... % validate fields and set the default 
          'gamma',0.5);
 
 % change unit from msec to sec.
-sparam.initial_fixation_time  = sparam.initial_fixation_time/1000;
-sparam.condition_duration     = sparam.condition_duration/1000;
-sparam.BetweenDuration        = sparam.BetweenDuration/1000;
-sparam.stim_on_probe_duration = sparam.stim_on_probe_duration/1000;
-sparam.stim_on_duration       = sparam.stim_on_duration/1000;
-sparam.feedback_duration      = sparam.feedback_duration/1000;
+sparam.initial_fixation_time  = sparam.initial_fixation_time./1000;
+sparam.condition_duration     = sparam.condition_duration./1000;
+sparam.BetweenDuration        = sparam.BetweenDuration./1000;
+sparam.stim_on_probe_duration = sparam.stim_on_probe_duration./1000;
+sparam.stim_on_duration       = sparam.stim_on_duration./1000;
+sparam.feedback_duration      = sparam.feedback_duration./1000;
 
 sparam.stim_off_duration=sparam.condition_duration-sparam.stim_on_duration;
 
@@ -587,8 +590,7 @@ end
 %%%% Initialization of Left & Right screens for binocular presenting/viewing mode
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% set 1 only when you are sure that you are going to ignore the display vertical synch signals
-%Screen('Preference','SkipSyncTests',1);
+if dparam.skip_sync_test, Screen('Preference','SkipSyncTests',1); end
 
 % ************************************* IMPORTANT NOTE *****************************************
 % if the console PC has been connected to two 3D displays with the expanding display setups and
@@ -976,11 +978,13 @@ Screen('Flip', winPtr,[],[],[],1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % add time stamp (this also works to load add_event method in memory in advance of the actual displays)
-fprintf('\nExperiment running...\n');
+fprintf('\nWaiting for the start...\n');
 event=event.add_event('Experiment Start',strcat([datestr(now,'yymmdd'),' ',datestr(now,'HH:mm:ss')]),GetSecs());
 
 % waiting for stimulus presentation
 resps.wait_stimulus_presentation(dparam.start_method,dparam.custom_trigger);
+PlaySound(1);
+fprintf('\nExperiment running...\n');
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1472,7 +1476,7 @@ catch %#ok
   % this "catch" section executes in case of an error in the "try" section
   % above.  Importantly, it closes the onscreen window if its open.
   Screen('CloseAll');
-  ShowCursor;
+  ShowCursor();
   Priority(0);
   GammaResetPTB(1.0);
   tmp=lasterror; %#ok
