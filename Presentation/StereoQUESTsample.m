@@ -477,47 +477,44 @@ sparam.numConds=numel(sparam.theta_deg);
 %%%% Displaying the presentation parameters you set
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-disp('The Presentation Parameters are as below.');
-fprintf('\n');
-disp('************************************************');
-disp('****** Script, Subject, Acquistion Number ******');
-eval(sprintf('disp(''Running Script Name    : %s'');',mfilename()));
-eval(sprintf('disp(''Subject ID             : %s'');',subjID));
-eval(sprintf('disp(''Acquisition Number     : %d'');',acq));
-disp('********* Run Type, Display Image Type *********');
-eval(sprintf('disp(''Display Mode           : %s'');',dparam.ExpMode));
-eval(sprintf('disp(''use Full Screen Mode   : %d'');',dparam.fullscr));
-eval(sprintf('disp(''Start Method           : %d'');',dparam.start_method));
+fprintf('The Presentation Parameters are as below.\n\n');
+fprintf('************************************************\n');
+fprintf('****** Script, Subject, Acquistion Number ******\n');
+fprintf('Running Script Name    : %s\n',mfilename());
+fprintf('Subject ID             : %s\n',subjID);
+fprintf('Acquisition Number     : %d\n',acq);
+fprintf('********* Run Type, Display Image Type *********\n');
+fprintf('Display Mode           : %s\n',dparam.ExpMode);
+fprintf('use Full Screen Mode   : %d\n',dparam.fullscr);
+fprintf('Start Method           : %d\n',dparam.start_method);
 if dparam.start_method==4
-  eval(sprintf('disp(''Custom Trigger         : %s'');',dparam.custom_trigger));
+  fprintf('Custom Trigger         : %s\n',dparam.custom_trigger);
 end
-disp('*************** Screen Settings ****************');
-eval(sprintf('disp(''Screen Height          : %d'');',dparam.ScrHeight));
-eval(sprintf('disp(''Screen Width           : %d'');',dparam.ScrWidth));
-disp('*********** Stimulation periods etc. ***********');
-eval(sprintf('disp(''Fixation Time(ms)      : %.2f'');',1000*sparam.initial_fixation_time));
-eval(sprintf('disp(''Cond Duration(ms)      : %.2f'');',1000*sparam.condition_duration));
-eval(sprintf('disp(''Between Trial Dur(ms)  : %.2f'');',1000*sparam.BetweenDuration));
-eval(sprintf('disp(''Stim ON Duration(ms)   : %.2f'');',1000*sparam.stim_on_duration));
-eval(sprintf('disp(''Stim OFF Duration(ms)  : %.2f'');',1000*sparam.stim_off_duration));
-disp('*************** QUEST parameters ***************');
-eval(sprintf('disp(''#conditions            : %d'');',sparam.numConds));
-eval(sprintf('disp(''#trials per condition  : %d'');',sparam.numTrials));
-eval(sprintf('disp(''max limit of threshold : %d'');',sparam.maxValue));
-eval(sprintf('disp(''initial value          : %d'');',sparam.initialValue));
-eval(sprintf('disp(''initial guess          : %.2f'');',sparam.tGuess));
-eval(sprintf('disp(''initial SD of guesss   : %.2f'');',sparam.tGuessSD));
-eval(sprintf('disp(''1-alpha of threshold   : %.2f'');',sparam.pThreshold));
-eval(sprintf('disp(''initial beta           : %.2f'');',sparam.beta));
-eval(sprintf('disp(''initial delta          : %.2f'');',sparam.delta));
-eval(sprintf('disp(''initial gamma          : %.2f'');',sparam.gamma));
-disp('************ Response key settings *************');
-eval(sprintf('disp(''Reponse Key #1         : %d=%s'');',dparam.Key1,KbName(dparam.Key1)));
-eval(sprintf('disp(''Reponse Key #2         : %d=%s'');',dparam.Key2,KbName(dparam.Key2)));
-disp('************************************************');
-fprintf('\n');
-disp('Please carefully check before proceeding.');
-fprintf('\n');
+fprintf('*************** Screen Settings ****************\n');
+fprintf('Screen Height          : %d\n',dparam.ScrHeight);
+fprintf('Screen Width           : %d\n',dparam.ScrWidth);
+fprintf('*********** Stimulation periods etc. ***********\n');
+fprintf('Fixation Time(ms)      : %.2f\n',1000*sparam.initial_fixation_time);
+fprintf('Cond Duration(ms)      : %.2f\n',1000*sparam.condition_duration);
+fprintf('Between Trial Dur(ms)  : %.2f\n',1000*sparam.BetweenDuration);
+fprintf('Stim ON Duration(ms)   : %.2f\n',1000*sparam.stim_on_duration);
+fprintf('Stim OFF Duration(ms)  : %.2f\n',1000*sparam.stim_off_duration);
+fprintf('*************** QUEST parameters ***************\n');
+fprintf('#conditions            : %d\n',sparam.numConds);
+fprintf('#trials per condition  : %d\n',sparam.numTrials);
+fprintf('max limit of threshold : %d\n',sparam.maxValue);
+fprintf('initial value          : %d\n',sparam.initialValue);
+fprintf('initial guess          : %.2f\n',sparam.tGuess);
+fprintf('initial SD of guesss   : %.2f\n',sparam.tGuessSD);
+fprintf('1-alpha of threshold   : %.2f\n',sparam.pThreshold);
+fprintf('initial beta           : %.2f\n',sparam.beta);
+fprintf('initial delta          : %.2f\n',sparam.delta);
+fprintf('initial gamma          : %.2f\n',sparam.gamma);
+fprintf('************ Response key settings *************\n');
+fprintf('Reponse Key #1         : %d=%s\n',dparam.Key1,KbName(dparam.Key1));
+fprintf('Reponse Key #2         : %d=%s\n',dparam.Key2,KbName(dparam.Key2));
+fprintf('************************************************\n\n');
+fprintf('Please carefully check before proceeding.\n\n');
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1136,7 +1133,7 @@ while ~isempty(condition_ID_holder)
     %% display a probe (a red fixation) before presenting the stimulus
     if second_stim_flag~=2
       if sparam.stim_on_probe_duration(1)~=0
-        event=event.add_event('Probe','');
+        event=event.add_event('Probe',\n
         for nn=1:1:nScr
           Screen('SelectStereoDrawBuffer',winPtr,nn-1);
           Screen('DrawTexture',winPtr,background,[],CenterRect(bgRect,winRect)+yshift);
@@ -1180,7 +1177,7 @@ while ~isempty(condition_ID_holder)
     while GetSecs()<tStimulation, [resps,event]=resps.check_responses(event); end
 
     %% stimulus OFF
-    event=event.add_event('Stimulus off','');
+    event=event.add_event('Stimulus off',\n
     if second_stim_flag~=2
       for nn=1:1:nScr
         Screen('SelectStereoDrawBuffer',winPtr,nn-1);
@@ -1201,7 +1198,7 @@ while ~isempty(condition_ID_holder)
   %% get observer response
 
   % display response cue
-  event=event.add_event('Waiting for response','');
+  event=event.add_event('Waiting for response',\n
   for nn=1:1:nScr
     Screen('SelectStereoDrawBuffer',winPtr,nn-1);
     Screen('DrawTexture',winPtr,background,[],CenterRect(bgRect,winRect)+yshift);
