@@ -31,7 +31,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2018-11-22 20:15:31 ban"
+% Last Update: "2019-01-08 09:40:53 ban"
 %
 %
 % [input variables]
@@ -668,12 +668,6 @@ sparam.cm_per_pix=1/sparam.pix_per_cm;
 % pixles per degree
 sparam.pix_per_deg=round( 1/( 180*atan(sparam.cm_per_pix/sparam.vdist)/pi ) );
 
-% sound sources for feedback correct/incorrect
-if sparam.give_feedback
-  beep_correct=sin(2*pi*0.2*(0:900));
-  beep_incorrect=sin(2*pi*0.012*(0:900));
-end
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Initializing height fields & image shifts by binocular disparities
@@ -1133,7 +1127,7 @@ while ~isempty(condition_ID_holder)
     %% display a probe (a red fixation) before presenting the stimulus
     if second_stim_flag~=2
       if sparam.stim_on_probe_duration(1)~=0
-        event=event.add_event('Probe',\n
+        event=event.add_event('Probe',[]);
         for nn=1:1:nScr
           Screen('SelectStereoDrawBuffer',winPtr,nn-1);
           Screen('DrawTexture',winPtr,background,[],CenterRect(bgRect,winRect)+yshift);
@@ -1177,7 +1171,7 @@ while ~isempty(condition_ID_holder)
     while GetSecs()<tStimulation, [resps,event]=resps.check_responses(event); end
 
     %% stimulus OFF
-    event=event.add_event('Stimulus off',\n
+    event=event.add_event('Stimulus off',[]);
     if second_stim_flag~=2
       for nn=1:1:nScr
         Screen('SelectStereoDrawBuffer',winPtr,nn-1);
@@ -1198,7 +1192,7 @@ while ~isempty(condition_ID_holder)
   %% get observer response
 
   % display response cue
-  event=event.add_event('Waiting for response',\n
+  event=event.add_event('Waiting for response',[]);
   for nn=1:1:nScr
     Screen('SelectStereoDrawBuffer',winPtr,nn-1);
     Screen('DrawTexture',winPtr,background,[],CenterRect(bgRect,winRect)+yshift);
