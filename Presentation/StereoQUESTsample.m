@@ -31,7 +31,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2019-01-08 09:40:53 ban"
+% Last Update: "2019-02-22 13:39:25 ban"
 %
 %
 % [input variables]
@@ -75,7 +75,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 % [output files]
 % 1. behavioral result
 %    stored ./subjects/(subjID)/results/(today)
-%    as ./subjects/(subjID)/results/(today)/(subjID)_StereoQUESTsample_results_run_(run_num).mat
+%    as ./subjects/(subjID)/results/(today)/(subjID)_Oblique3D_QUEST_results_run_(run_num).mat
 %
 %
 % [example]
@@ -344,7 +344,7 @@ if ~exist(resultDir,'dir'), mkdir(resultDir); end
 % record the output window
 logfname=fullfile(resultDir,[num2str(subjID),sprintf('_%s_run_',mfilename()),num2str(acq,'%02d'),'.log']);
 diary(logfname);
-warning off; %#ok warning('off','MATLAB:dispatcher:InexactCaseMatch');
+warning off; %warning('off','MATLAB:dispatcher:InexactCaseMatch');
 
 
 %%%%% try & catch %%%%%
@@ -533,10 +533,14 @@ fprintf('Please carefully check before proceeding.\n\n');
 design=zeros(numel(sparam.theta_deg),2);
 for ii=1:1:numel(sparam.theta_deg), design(ii,:)=[sparam.theta_deg(ii),sparam.orient_deg(ii)]; end
 
-% % delete conditions with theta_deg==0, orient_deg~=0 since the stimuli are completely same
-% % when the theta_deg==0
-% idx=logical(design(:,1)==0 & design(:,2)~=0);
-% if numel(find(idx==1))~=1, design(idx(2:end),:)=[]; end
+% create stimulus presentation array (sequence)
+if numel(sparam.numConds)>=4
+  stimulus_order=GenerateRandomDesignSequence(sparam.numConds,sparam.numTrials,2,0,1)';
+elseif numel(sparam.numConds)<=2
+  stimulus_order=GenerateRandomDesignSequence(sparam.numConds,sparam.numTrials,0,0,0)';
+else
+  stimulus_order=GenerateRandomDesignSequence(sparam.numConds,sparam.numTrials,1,0,1)';
+end
 
 %% create a QUEST data structure that stores the angle differences (stimulus intensities)
 quest_data=cell(size(design,1),1);
@@ -553,14 +557,8 @@ end
 %  ...]
 estimation_matrix=cell(size(design,1),1);
 
-%% Variables described below are tempral ones.
-
-% stimulus IDs
-% The ID array is modified during stimulus presentation and deleted after the measurements
-condition_ID_holder=(1:size(design,1))';
-
 % to store numbers of the current trials
-currenttrial_counter=zeros(size(design,1),1);
+trial_counter=zeros(size(design,1),1);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -737,7 +735,7 @@ dotalpha=basedot(:,:,4)./max(max(basedot(:,:,4))); % get alpha channel value 0-1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Debug codes
-%%%% just to save each images as *.png format files.
+%%%% saving the stimulus images as *.png format files and enter the debug (keyboard) mode
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % %%%%%% DEBUG codes start here. The codes below are just to get stimulus images and check the dparam and sparam parameters
@@ -794,7 +792,7 @@ if strfind(upper(subjID),'DEBUG')
   end % for ii=1:1:size(design,1)
 
   % save stimuli as *.mat
-  save_dir=fullfile(pwd,'images');
+  save_dir=fullfile(resultDir,'images');
   if ~exist(save_dir,'dir'), mkdir(save_dir); end
   save(fullfile(save_dir,'oblique3D_stimuli.mat'),'design','dparam','sparam','imgL','imgR','posL','posR','wdot','bdot','dotalpha');
 
@@ -804,29 +802,17 @@ if strfind(upper(subjID),'DEBUG')
     % save generated figures as png
     if ~strcmpi(dparam.ExpMode,'redgreen') && ~strcmpi(dparam.ExpMode,'redblue')
       M = [imgL{ii},sparam.bgcolor(3)*ones(size(imgL{ii},1),20),imgR{ii},sparam.bgcolor(3)*ones(size(imgL{ii},1),20),imgL{ii}];
-      % im_h = imagesc(M,[0 255]);
-      % axis off
-      % % truesize is necessary to avoid automatic scaling
-      % size_one2one(im_h);
-      % colormap(gray);
-      % shg;
     else
       M=reshape([imgL{ii},imgR{ii},sparam.bgcolor(3)*ones(size(imgL{ii}))],[size(imgL{ii}),3]); % RGB;
-      % im_h = imagesc(M);
-      % axis off
-      % % truesize is necessary to avoid automatic scaling
-      % size_one2one(im_h);
-      % shg;
     end
 
     figure; hold on;
-    imfig=imshow(M,[0,255]);
+    imshow(M,[0,255]);
     if ~strcmpi(dparam.ExpMode,'redgreen') && ~strcmpi(dparam.ExpMode,'redblue')
       fname=sprintf('oblique3D_cond%03d_theta%.2f_ori%.2f.png',ii,design(ii,1),design(ii,2));
     else
       fname=sprintf('oblique3D_red_green_cond%03d_theta%.2f_ori%.2f.png',ii,design(ii,1),design(ii,2));
     end
-    %saveas(imfig,[save_dir,filesep(),fname,'.png'],'png');
     imwrite(M,[save_dir,filesep(),fname,'.png'],'png');
 
   end % for ii=1:1:size(design,1)
@@ -970,7 +956,7 @@ Screen('Flip', winPtr,[],[],[],1);
 
 % add time stamp (this also works to load add_event method in memory in advance of the actual displays)
 fprintf('\nWaiting for the start...\n');
-event=event.add_event('Experiment Start',strcat([datestr(now,'yymmdd'),' ',datestr(now,'HH:mm:ss')]),GetSecs());
+event=event.add_event('Experiment Start',strcat([datestr(now,'yymmdd'),' ',datestr(now,'HH:mm:ss')]),NaN);
 
 % waiting for stimulus presentation
 resps.wait_stimulus_presentation(dparam.start_method,dparam.custom_trigger);
@@ -1014,21 +1000,20 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 tBetweenTrial=GetSecs();
-while ~isempty(condition_ID_holder)
+for currenttrial=1:1:numel(stimulus_order)
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Stimulus generation
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   % get the current stimulus ID
-  tmp=shuffle(condition_ID_holder);
-  stimID=tmp(1);
+  stimID=stimulus_order(currenttrial);
 
   % set the current stimulus parameters
   theta_deg=design(stimID,1);
   orient_deg=design(stimID,2);
 
-  currenttrial_counter(stimID)=currenttrial_counter(stimID)+1;
+  trial_counter(stimID)=trial_counter(stimID)+1;
 
   % set recommended stimulus intensity using QUEST algorithm
   % Choose your favorite algorithm.
@@ -1041,7 +1026,7 @@ while ~isempty(condition_ID_holder)
   angle=min(angle,sparam.maxValue);
   angle=max(angle,0);
 
-  estimation_matrix{stimID}(currenttrial_counter(stimID),1)=angle;
+  estimation_matrix{stimID}(trial_counter(stimID),1)=angle;
 
   %jitter=shuffle(-2:2); jitter=jitter(1);
   jitter=0;
@@ -1119,9 +1104,9 @@ while ~isempty(condition_ID_holder)
 
     %% log/display the stimulus parameters
     event=event.add_event('Start block',['ID_',num2str(stimID),'_theta_',num2str(theta_deg),'_orient_',num2str(orient_deg),...
-                          '_angle_',num2str(angle),'_trials_',num2str(currenttrial_counter(stimID),'%03d'),'_type_',num2str(ii,'%02d')]);
+                          '_angle_',num2str(angle),'_trials_',num2str(trial_counter(stimID),'%03d'),'_type_',num2str(ii,'%02d')]);
     fprintf('ID:%02d, THETA:% 3.2f, ORIENTATION:% 3d, ANGLE:% 3.2f, TRIALS:%03d, TYPE:%02d\n',...
-            stimID,theta_deg,orient_deg,tilt_deg(ii),currenttrial_counter(stimID),ii);
+            stimID,theta_deg,orient_deg,tilt_deg(ii),trial_counter(stimID),ii);
     if second_stim_flag==2, fprintf('\n'); end
 
     %% display a probe (a red fixation) before presenting the stimulus
@@ -1221,12 +1206,12 @@ while ~isempty(condition_ID_holder)
     end
   end
 
-  estimation_matrix{stimID}(currenttrial_counter(stimID),2)=double(respFlag>0);
+  estimation_matrix{stimID}(trial_counter(stimID),2)=double(respFlag>0);
 
   % update stimulus intensity in the QUEST structure
   quest_data{stimID}=QuestUpdate(quest_data{stimID},log10(angle/sparam.maxValue),double(respFlag>0));
-  estimation_matrix{stimID}(currenttrial_counter(stimID),3)=sparam.maxValue*10^QuestMean(quest_data{stimID});
-  estimation_matrix{stimID}(currenttrial_counter(stimID),4)=sparam.maxValue*10^QuestSd(quest_data{stimID});
+  estimation_matrix{stimID}(trial_counter(stimID),3)=sparam.maxValue*10^QuestMean(quest_data{stimID});
+  estimation_matrix{stimID}(trial_counter(stimID),4)=sparam.maxValue*10^QuestSd(quest_data{stimID});
 
   %% give correct/incorrect feedback and wait for dparam.BetweenDuration (duration between trials)
   if sparam.give_feedback
@@ -1274,10 +1259,7 @@ while ~isempty(condition_ID_holder)
     end
   end
 
-  % delete finished condition from condition_ID_holder
-  if currenttrial_counter(stimID)==sparam.numTrials, condition_ID_holder(condition_ID_holder==stimID)=[]; end
-
-end % ~isempty(condition_ID_holder)
+end % for currenttrial=1:1:numel(stimulus_order)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1481,8 +1463,6 @@ catch %#ok
   rmpath(genpath(fullfile(rootDir,'..','Common')));
   rmpath(fullfile(rootDir,'..','gamma_table'));
   rmpath(fullfile(rootDir,'..','Generation'));
-  %psychrethrow(psychlasterror);
-  close all; clear global; clear mex; clear all;
   return
 end % try..catch
 
