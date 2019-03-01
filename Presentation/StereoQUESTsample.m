@@ -31,7 +31,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2019-02-22 13:39:25 ban"
+% Last Update: "2019-02-28 18:34:45 ban"
 %
 %
 % [input variables]
@@ -295,7 +295,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %%%% Check the input variables
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%clear global; clear mex;
+clear global; clear mex;
 if nargin<2, help(mfilename()); return; end
 if nargin<3 || isempty(displayfile), displayfile=[]; end
 if nargin<4 || isempty(stimulusfile), stimulusfile=[]; end
@@ -1437,7 +1437,7 @@ GammaResetPTB(1.0);
 rmpath(genpath(fullfile(rootDir,'..','Common')));
 rmpath(fullfile(rootDir,'..','gamma_table'));
 rmpath(fullfile(rootDir,'..','Generation'));
-%close all; clear all; clear mex; clear global;
+clear all; clear mex; clear global;
 diary off;
 
 
@@ -1463,6 +1463,7 @@ catch %#ok
   rmpath(genpath(fullfile(rootDir,'..','Common')));
   rmpath(fullfile(rootDir,'..','gamma_table'));
   rmpath(fullfile(rootDir,'..','Generation'));
+  clear all; clear mex; clear global;
   return
 end % try..catch
 
