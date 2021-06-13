@@ -3,6 +3,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 % function StereoQUESTsample(subjID,acq,:displayfile,:stimlusfile,:gamma_table,:overwrite_flg,:force_proceed_flag)
 % (: is optional)
 %
+% - This is a sample MATLAB Psychtoolbox-3 (PTB3) script for QUEST psychophysics experiment on 3D vision.
 % - Displays 3D slant consisted of Random-Dot-Stereogram (RDS) with horizontal
 %   binocular disparities.
 % - Used for psychophysical measurements of perceptual oblique effects in 3D scene.
@@ -29,9 +30,16 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %   number of frames corresponding to the TR). So we need to save delay or
 %   prevent from acceleration by controling the stimulus duration in msec order).
 %
+% [how to run the script]
+% 1. On the MATLAB shell, please change the working directory to
+%    ~/StereoQUESTsample/Presentation/
+% 2. Run the "run_exp" script
+%    >> run_exp('subj_name',1);
+%    Here, the first input variable is subject name or ID, such as 'HB' or 's01',
+%    the second variable should be 1 or 2,
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2021-06-10 01:37:07 ban"
+% Last Update: "2021-06-13 22:27:22 ban"
 %
 %
 % [input variables]
