@@ -3,16 +3,17 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 % function StereoQUESTsample(subjID,acq,:displayfile,:stimlusfile,:gamma_table,:overwrite_flg,:force_proceed_flag)
 % (: is optional)
 %
-% - This is a sample MATLAB Psychtoolbox-3 (PTB3) script for QUEST psychophysics experiment on 3D vision.
-% - Displays 3D slant consisted of Random-Dot-Stereogram (RDS) with horizontal
-%   binocular disparities.
+% - This is a sample MATLAB Psychtoolbox-3 (PTB3) script for QUEST psychophysics
+%   experiment on 3D vision.
+% - Displays tilted and/or slanted circular planes consisted of
+%   Random-Dot-Stereogram (RDS) with horizontal binocular disparities.
 % - Used for psychophysical measurements of perceptual oblique effects in 3D scene.
 % - Participant's task is to discriminate which (the 1st or the 2nd) of the RDSs
 %   is more "slanted" or "tilted" and answer by button pressing (key1 or key2).
 % - Thresholds are estimated by the QUEST procedure. Here the thresholds mean
 %   the minimum discriminable angles (at 82% accuracies by default) between
-%   the two slaned surfaces at specific depth positions, irrelevant to the sign
-%   of the depth (differences of top-near and top-far slants are inogured).
+%   the two slanted planes at specific depth positions, irrelevant to the sign
+%   of the depth (differences of top-near and top-far slants are ignored).
 %   <ref 1>
 %   King-Smith, P. E., Grigsby, S. S., Vingrys, A. J., Benes, S. C., and
 %   Supowit, A. (1994) Efficient and unbiased modifications of the QUEST
@@ -39,7 +40,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %    the second variable should be 1 or 2,
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2021-06-13 22:27:22 ban"
+% Last Update: "2021-12-08 05:18:25 ban"
 %
 %
 % [input variables]
@@ -48,7 +49,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %                 !!! if 'debug' (case insensitive) is included          !!!
 %                 !!! in subjID string, this program runs as DEBUG mode; !!!
 %                 !!! stimulus images are saved as *.png format at       !!!
-%                 !!! ~/CurvatureShading/Presentation/images             !!!
+%                 !!! ~/StereoQUESTsample/Presentation/images            !!!
 %                 !!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!
 % acq           : acquisition number (design file number),
 %                 an integer, such as 1, 2, 3, ...
@@ -83,7 +84,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 % [output files]
 % 1. behavioral result
 %    stored ./subjects/(subjID)/results/(today)
-%    as ./subjects/(subjID)/results/(today)/(subjID)_Oblique3D_QUEST_results_run_(run_num).mat
+%    as ./subjects/(subjID)/results/(today)/(subjID)_StereoQUESTsample_results_run_(run_num).mat
 %
 %
 % [example]
