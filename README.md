@@ -2,7 +2,7 @@
 
 <div align="right">
 Created    : "2018-10-04 15:21:12 ban"<br>
-Last Update: "2021-12-13 07:29:30 ban"
+Last Update: "2021-12-15 11:38:13 ban"
 </div>
 
 <br>
@@ -21,7 +21,7 @@ Last Update: "2021-12-13 07:29:30 ban"
 ## **StereoQUESTsample**
 
 
-![StereoQUESTsample](imgs/StereoQUESTsample.png)  
+![StereoQUESTsample](doc/images/StereoQUESTsample.png)  
 
 **Sample stimulus presentation codes for stereo vision psychophysics experiment (QUEST method) in our research group**  
 
