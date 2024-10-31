@@ -40,7 +40,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 %    the second variable should be 1 or 2,
 %
 % Created    : "2018-09-26 15:22:55 ban"
-% Last Update: "2021-12-08 05:18:25 ban"
+% Last Update: "2024-10-31 13:55:43 ban"
 %
 %
 % [input variables]
@@ -103,7 +103,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 % % SlantfMRI.m
 % %
 % % Created    : "2018-09-26 18:57:59 ban"
-% % Last Update: "2021-06-10 01:37:07 ban"
+% % Last Update: "2024-10-31 13:55:43 ban"
 % % ************************************************************
 %
 % % "dparam" means "display-setting parameters"
@@ -157,7 +157,7 @@ function StereoQUESTsample(subjID,acq,displayfile,stimulusfile,gamma_table,overw
 % % StereoQUESTsample.m
 % %
 % % Created    : "2018-09-26 18:57:59 ban"
-% % Last Update: "2021-06-10 01:37:07 ban"
+% % Last Update: "2024-10-31 13:55:43 ban"
 % % ************************************************************
 %
 % % "sparam" means "stimulus generation parameters"
@@ -974,7 +974,7 @@ for nn=1:1:nScr
   end
 end
 Screen('DrawingFinished',winPtr);
-Screen('Flip', winPtr,[],[],[],1);
+Screen('Flip', winPtr);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1020,7 +1020,7 @@ if sparam.initial_fixation_time~=0
     end
   end
   Screen('DrawingFinished',winPtr);
-  Screen('Flip', winPtr,[],[],[],1);
+  Screen('Flip', winPtr);
 
   % wait for the initial fixation
   targetTime=targetTime+sparam.initial_fixation_time;
@@ -1158,7 +1158,7 @@ for currenttrial=1:1:numel(stimulus_order)
           end
         end
         Screen('DrawingFinished',winPtr);
-        Screen('Flip',winPtr,[],[],[],1);
+        Screen('Flip',winPtr);
 
         % wait for stim_on_probe_duration(1)
         tStimulation=tStimulation+sparam.stim_on_probe_duration(1);
@@ -1178,7 +1178,7 @@ for currenttrial=1:1:numel(stimulus_order)
           end
         end
         Screen('DrawingFinished',winPtr);
-        Screen('Flip',winPtr,[],[],[],1);
+        Screen('Flip',winPtr);
 
         % wait for stim_on_probe_duration(2)
         tStimulation=tStimulation+sparam.stim_on_probe_duration(2);
@@ -1200,7 +1200,7 @@ for currenttrial=1:1:numel(stimulus_order)
       end
     end
     Screen('DrawingFinished',winPtr);
-    Screen('Flip',winPtr,[],[],[],1);
+    Screen('Flip',winPtr);
 
     % wait for stim_on_duration
     tStimulation=tStimulation+sparam.stim_on_duration;
@@ -1221,7 +1221,7 @@ for currenttrial=1:1:numel(stimulus_order)
         end
       end
       Screen('DrawingFinished',winPtr);
-      Screen('Flip',winPtr,[],[],[],1);
+      Screen('Flip',winPtr);
 
       % wait for stim_off_duration
       tStimulation=tStimulation+sparam.stim_off_duration;
@@ -1247,7 +1247,7 @@ for currenttrial=1:1:numel(stimulus_order)
     end
   end
   Screen('DrawingFinished',winPtr);
-  Screen('Flip',winPtr,[],[],[],1);
+  Screen('Flip',winPtr);
 
   % get observer's response
 
@@ -1301,7 +1301,7 @@ for currenttrial=1:1:numel(stimulus_order)
       end
     end
     Screen('DrawingFinished',winPtr);
-    Screen('Flip',winPtr,[],[],[],1);
+    Screen('Flip',winPtr);
     PlaySound(respFlag>0);
 
     % wait for feedback_duration
@@ -1325,7 +1325,7 @@ for currenttrial=1:1:numel(stimulus_order)
     end
   end
   Screen('DrawingFinished',winPtr);
-  Screen('Flip',winPtr,[],[],[],1);
+  Screen('Flip',winPtr);
 
   % garbage collections, clean up the current texture & release memory
   for ii=1:1:2
